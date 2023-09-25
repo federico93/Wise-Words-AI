@@ -2,19 +2,63 @@ import React from 'react';
 
 import FormControl from "@mui/material/FormControl";
 import TextField from "@mui/material/TextField";
-import FormLabel from "@mui/material/FormLabel";
-import Rating from "@mui/material/Rating";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 
 import SatisfactionRating from "../SatisfactionRating";
 
-function RestaurantForm() {
-    const [locationName, setLocationName] = React.useState("");
-    const [cookingScore, setCookingScore] = React.useState<number | null>(null);
-    const [serviceScore, setServiceScore] = React.useState<number | null>(null);
-    const [ambientScore, setAmbientScore] = React.useState<number | null>(null);
-    const [priceQualityScore, setPriceQualityScore] = React.useState<number | null>(null);
+import RestaurantReview from "../../types/RestaurantReview";
+import RestaurantReviewService from "../../services/RestaurantReviewService";
+
+interface RestaurantFormProps {
+    review?: RestaurantReview,
+    onReviewGenerated?: any
+};
+
+const RestaurantForm: React.FC = ({ review, onReviewGenerated }: RestaurantFormProps) => {
+    const [restaurant, setRestaurant] = React.useState(review?.location ?? "");
+    const [cookingScore, setCookingScore] = React.useState<number | null>(review?.scores.cooking ?? null);
+    const [serviceScore, setServiceScore] = React.useState<number | null>(review?.scores.service ?? null);
+    const [ambientScore, setAmbientScore] = React.useState<number | null>(review?.scores.ambient ?? null);
+    const [priceQualityScore, setPriceQualityScore] = React.useState<number | null>(review?.scores.priceQuality ?? null);
+    const [loading, setLoading] = React.useState<boolean>(false);
+
+    const generateReview = () => {
+        const data = {
+            location: restaurant,
+            scores: {
+                cooking: cookingScore,
+                service: serviceScore,
+                ambient: ambientScore,
+                priceQuality: priceQualityScore
+            }
+        };
+
+        setLoading(true);
+
+        RestaurantReviewService.create(data)
+            .then((response: any) => {
+                setLoading(false);
+
+                onReviewGenerated?.({
+                    id: response.data.id,
+                    location: response.data.location,
+                    scores: {
+                        overall: response.data.scores.overall,
+                        cooking: response.data.scores.cooking,
+                        service: response.data.scores.service,
+                        ambient: response.data.scores.ambient,
+                        priceQuality: response.data.scores.priceQuality
+                    },
+                    generatedText: response.data.generatedText
+                });
+            })
+            .catch((e: Error) => {
+                setLoading(false);
+
+                console.log(e);
+            });
+    };
 
     return (
         <FormControl
@@ -26,9 +70,9 @@ function RestaurantForm() {
                 required
                 fullWidth
                 margin="dense"
-                value={locationName}
+                value={restaurant}
                 onChange={(e) => {
-                    setLocationName(e.target.value);
+                    setRestaurant(e.target.value);
                 }}
             />
 
@@ -71,17 +115,8 @@ function RestaurantForm() {
                         my: 2,
                         maxWidth: 300
                     }}
-                    onClick={() => {
-                        console.log({
-                            location: locationName,
-                            scores: {
-                                cooking: cookingScore,
-                                service: serviceScore,
-                                ambient: ambientScore,
-                                priceQuality: priceQualityScore
-                            }
-                        });
-                    }}
+                    onClick={generateReview}
+                    disabled={loading}
                 >
                     Generate
                 </Button>
