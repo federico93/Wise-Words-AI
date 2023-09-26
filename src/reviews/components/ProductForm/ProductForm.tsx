@@ -7,47 +7,44 @@ import Button from "@mui/material/Button";
 
 import SatisfactionRating from "../SatisfactionRating";
 
-import RestaurantReviewInterface from "../../interfaces/RestaurantReviewInterface";
-import RestaurantReviewService from "../../services/RestaurantReviewService";
+import ProductReviewInterface from "../../interfaces/ProductReviewInterface";
+import ProductReviewService from "../../services/ProductReviewService";
 
-interface RestaurantFormProps {
-    review?: RestaurantReviewInterface,
+interface ProductFormProps {
+    review?: ProductReviewInterface,
     onReviewChange?: any
 };
 
-const RestaurantForm: React.FC<RestaurantFormProps> = ({ review, onReviewChange }: RestaurantFormProps) => {
-    const [restaurant, setRestaurant] = React.useState(review?.location ?? "");
-    const [cookingScore, setCookingScore] = React.useState<number | null>(review?.scores.cooking ?? null);
-    const [serviceScore, setServiceScore] = React.useState<number | null>(review?.scores.service ?? null);
-    const [ambientScore, setAmbientScore] = React.useState<number | null>(review?.scores.ambient ?? null);
+const ProductForm: React.FC<ProductFormProps> = ({ review, onReviewChange }: ProductFormProps) => {
+    const [store, setStore] = React.useState(review?.location ?? "");
+    const [productName, setProductName] = React.useState(review?.productName ?? "");
+    const [deliveryScore, setDeliveryScore] = React.useState<number | null>(review?.scores.delivery ?? null);
     const [priceQualityScore, setPriceQualityScore] = React.useState<number | null>(review?.scores.priceQuality ?? null);
     const [loading, setLoading] = React.useState<boolean>(false);
 
     const generateReview = () => {
         const data = {
-            location: restaurant,
+            location: store,
+            productName: productName,
             scores: {
-                cooking: cookingScore,
-                service: serviceScore,
-                ambient: ambientScore,
+                delivery: deliveryScore,
                 priceQuality: priceQualityScore
             }
         };
 
         setLoading(true);
 
-        RestaurantReviewService.create(data)
+        ProductReviewService.create(data)
             .then((response: any) => {
                 setLoading(false);
 
                 onReviewChange?.({
                     id: response.data.id,
                     location: response.data.location,
+                    productName: response.data.productName,
                     scores: {
                         overall: response.data.scores.overall,
-                        cooking: response.data.scores.cooking,
-                        service: response.data.scores.service,
-                        ambient: response.data.scores.ambient,
+                        delivery: response.data.scores.delivery,
                         priceQuality: response.data.scores.priceQuality
                     },
                     generatedText: response.data.generatedText
@@ -66,37 +63,33 @@ const RestaurantForm: React.FC<RestaurantFormProps> = ({ review, onReviewChange 
         >
             <TextField
                 id="location-name"
-                label="Restaurant's name"
+                label="Store name"
                 required
                 fullWidth
                 margin="dense"
-                value={restaurant}
+                value={store}
                 onChange={(e) => {
-                    setRestaurant(e.target.value);
+                    setStore(e.target.value);
+                }}
+            />
+
+            <TextField
+                id="product-name"
+                label="What did you buy?"
+                required
+                fullWidth
+                margin="dense"
+                value={productName}
+                onChange={(e) => {
+                    setProductName(e.target.value);
                 }}
             />
 
             <SatisfactionRating
-                label="Rate the cooking"
-                defaultValue={cookingScore}
+                label="Rate the delivery"
+                defaultValue={deliveryScore}
                 onChange={(value) => {
-                    setCookingScore(value);
-                }}
-            />
-
-            <SatisfactionRating
-                label="Rate the service"
-                defaultValue={serviceScore}
-                onChange={(value) => {
-                    setServiceScore(value);
-                }}
-            />
-
-            <SatisfactionRating
-                label="Rate the ambient"
-                defaultValue={ambientScore}
-                onChange={(value) => {
-                    setAmbientScore(value);
+                    setDeliveryScore(value);
                 }}
             />
 
@@ -125,4 +118,4 @@ const RestaurantForm: React.FC<RestaurantFormProps> = ({ review, onReviewChange 
     );
 }
 
-export default RestaurantForm;
+export default ProductForm;

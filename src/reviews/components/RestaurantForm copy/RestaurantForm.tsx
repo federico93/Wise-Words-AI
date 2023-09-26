@@ -8,7 +8,7 @@ import Button from "@mui/material/Button";
 import SatisfactionRating from "../SatisfactionRating";
 
 import RestaurantReviewInterface from "../../interfaces/RestaurantReviewInterface";
-import RestaurantReviewService from "../../services/RestaurantReviewService";
+import ProductReviewService from "../../services/RestaurantReviewService";
 
 interface RestaurantFormProps {
     review?: RestaurantReviewInterface,
@@ -36,7 +36,7 @@ const RestaurantForm: React.FC<RestaurantFormProps> = ({ review, onReviewChange 
 
         setLoading(true);
 
-        RestaurantReviewService.create(data)
+        ProductReviewService.create(data)
             .then((response: any) => {
                 setLoading(false);
 

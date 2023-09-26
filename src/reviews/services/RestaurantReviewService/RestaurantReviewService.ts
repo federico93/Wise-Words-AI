@@ -1,6 +1,6 @@
 import http from "../../../common/http-common";
 
-import RestaurantReview from "../../types/RestaurantReview";
+import RestaurantReview from "../../interfaces/RestaurantReviewInterface";
 
 const create = (data: RestaurantReview) => {
     return http.post<RestaurantReview>("/reviews/restaurant", data);
